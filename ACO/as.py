@@ -128,11 +128,11 @@ class AntSystem:
     def reset_shortest(self):
         self.shortest_path = {"d": float("inf"), "p": []}
 
-    def update_pheromones(self, idx):
+    def pheromone_intensification(self, idx):
         p = self.shortest_path["p"]
         for i in range(len(p) - 1):
             position = (p[i], p[i + 1])
-            updated = self.pheromones.item(position) * (1 / self.shortest_path["d"])
+            updated = self.pheromones.item(position) + (1 / self.shortest_path["d"])
             self.pheromones.itemset(position, updated)
         return
 
@@ -157,11 +157,11 @@ class AntSystem:
             if i % self.update_every == 0:
                 self.evaporate()
                 self.increment_pheromones(i)
-                self.update_pheromones(i)
+                self.pheromone_intensification(i)
+                print(self.shortest_path)
                 self.reset_shortest()
-            print(self.shortest_path)
         return
 
 
 if __name__ == "__main__":
-    AntSystem(noc=10, updt=10).run(100)
+    AntSystem(noc=10, updt=10).run(1000)
