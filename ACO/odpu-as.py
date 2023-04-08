@@ -1,3 +1,8 @@
+## In this case the pheromones will be updated
+## each ant will update the pheromone information
+## with a value that is proportional to the quality
+## of the solution found.
+
 from typing import List, Set
 
 import numpy as np
@@ -9,7 +14,7 @@ max_iter = 1000
 
 class ArtificialAnt:
     def __init__(self, initial_node: int, non: int):
-        self.initiSetal = initial_node
+        self.initial = initial_node
         self.current = initial_node
         # Mejorable
         self.visited_nodes: dict[int, int] = self.init_visited_nodes(
@@ -81,7 +86,7 @@ class ArtificialAnt:
             return (False, self.path)
 
         next_node = self.choose_next_node(nv_nodes, pheromones)
-        print(f"next_node:{next_node}")
+        # print(f"next_node:{next_node}")
         old_node = self.current
         self.current = next_node
 
@@ -105,6 +110,7 @@ class AntSystem:
         self.nodes_list = []
         self.distances = np.random.randint(0, 100, size=[non, non])
         self.pheromone = self.init_pheromones(non)
+        self.all_wd: List[int] = []
         return
 
     def init_pheromones(self, noc):
@@ -116,9 +122,9 @@ class AntSystem:
         # How can i define a fitness function?
         return 0
 
-    def update_pheromones(self):
+    def update_pheromones(self, wd: int):
         ## Decrement factor can be better
-        factor = 1 - decrement_factor + decrement_factor * self.fitness_function()
+        factor = (1 - decrement_factor) * 1 / wd
         self.pheromone = self.pheromone * factor
         return
 
@@ -156,14 +162,14 @@ class AntSystem:
                 result = ant.move(self.pheromone)
                 didnt_finish = result[0]
                 returned_path = result[1]
-
-            print(
-                f"Distance: {self.path_distance(returned_path)} \n-------------------- \n"
-            )
-        self.update_pheromones()
+            walked_distance = self.path_distance(returned_path)
+            self.all_wd.append(walked_distance)
+            print(f"Distance: {walked_distance} \n-------------------- \n")
+            self.update_pheromones(walked_distance)
         # print(f"{self.pheromone}")
+        print(self.all_wd)
         return
 
 
 if __name__ == "__main__":
-    AntSystem(non=3).run(10)
+    AntSystem(non=10).run(10)
