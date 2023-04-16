@@ -1,0 +1,10 @@
+{
+  "titles": "Test title",
+  "x": [1, 2, 3, 4],
+  "y": [
+    { "label": "Im first label", "values": [1, 2, 3, 10] },
+    { "label": "Im second label", "values": [2, 4, 6, 8] }
+  ],
+  "xlabel": "xlabel",
+  "ylabel": "ylabel"
+}

@@ -4,7 +4,6 @@ import numpy as np
 import numpy.typing as npt
 
 # Initial pheromones: Pn = zeros(n)
-# Initial distances: Dn = randInt(n)
 
 # Visited cities can be represented with a
 # len(S) array. Where Vi = 1 if visited, 0 if not
@@ -92,14 +91,28 @@ class ArtificialAnt:
 
 
 class AntSystem:
-    def __init__(self, noc: int, updt: int = 4):
+    def __init__(self, noc: int, updt: int = 4, s: str = "S"):
         self.nCities = noc
-        self.distances = np.random.randint(0, 100, size=(noc, noc))
+        self.distances = self.initialize_distances(noc, strategy=s)
         self.pheromones = self.initialize_pheromones(noc)
         self.initial_pool = list(range_inc(0, self.nCities))
         self.shortest_path: dict = {"d": float("inf"), "p": []}
         self.update_every = updt
+        self.historic_distances = []
         return
+
+    def initialize_distances(self, noc: int, strategy: str = "S"):
+        """
+        strategy:
+            S: Symetric distances. The problem will be STP
+            A: Asymetric distances. The problem will be ASTP
+        """
+        d = np.random.randint(0, 100, size=(noc, noc))
+        if strategy == "S":
+            m = np.tril(d, k=-1)
+            n = m.transpose()
+            return np.add(m, n)
+        return d
 
     def calc_path_distance(self, path: List[int]) -> int:
         tot = 0
@@ -119,6 +132,11 @@ class AntSystem:
 
     def save_shortest(self, path: List[int]):
         n_p = self.calc_path_distance(path)
+
+        ## Will save all the values for the plot
+        ## Is a test
+        self.historic_distances.append(n_p)
+
         if n_p < self.shortest_path["d"]:
             self.shortest_path["d"] = n_p
             self.shortest_path["p"] = path
@@ -158,10 +176,8 @@ class AntSystem:
                 self.evaporate()
                 self.increment_pheromones(i)
                 self.pheromone_intensification(i)
-                print(self.shortest_path)
                 self.reset_shortest()
+
+        print(self.shortest_path)
+        print(self.distances)
         return
-
-
-if __name__ == "__main__":
-    AntSystem(noc=10, updt=10).run(1000)
